@@ -22,7 +22,7 @@ class SomsManagementLoginSystem(QMainWindow):
         self.WDW_Xpos = 100   # X position 
         self.WDW_Ypos = 100   # Y Position 
         self.WDW_Width = 760  # WIDTH 760
-        self.WDW_Height = 700 # HEIGHT 700
+        self.WDW_Height = 560 # HEIGHT 700
 
         #      (SETUP WINDOW)
         # - Code down below will setup and determine the window's title and position and scale measurements 
@@ -37,7 +37,7 @@ class SomsManagementLoginSystem(QMainWindow):
         # - Creating each screen for corresponding class
         self.SCRN_loginacc = LoginAcc_Screen(self.MAIN_WIDGET)      
         self.SCRN_registeracc = RegisterAcc_Screen(self.MAIN_WIDGET)
-        self.SCRN_verifyacc = VerifyAcc_Screen(self.MAIN_WIDGET, None)
+        self.SCRN_verifyacc = VerifyAcc_Screen(self.MAIN_WIDGET, None, None)
         self.SCRN_dashboard = Dashboard_Screen(self.MAIN_WIDGET)    
 
         # - Adding it to the stack will be sorted by index number 
