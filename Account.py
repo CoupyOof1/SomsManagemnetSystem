@@ -95,11 +95,11 @@ class LoginAcc_Screen(GUIClass):
         # - Setting up the Sign up button to allow users to the sign up page 
         self.BTN_SignUp = self.Create_Button(
             "New to SomsMang? Register for an account", 
-            "10px", 
+            "11px", 
             frame_layout, 
             self.Switch_SignUpScreen, 
             btn_align=Qt.AlignHCenter,
-            width=230,
+            width=245,
             height=30,
             icon_path=None
         )
@@ -290,6 +290,20 @@ class VerifyAcc_Screen(GUIClass):
         self.setLayout(self.layout) # Assigning layout to main window
         self.layout.setSpacing(10)
 
+        #      (CREATING BACKGROUND IMAGE)
+        self.background_image = self.Create_Image(
+            "Assets/Images/Background.png",    # Path to your image
+            self,                              # Parent (optional)
+            width=760,                         # Optional resize width
+            height=590                         # Optional resize height
+        )
+        self.background_image.move(0, 0) # Place it at (0, 0) to fill the window and stay behind everything
+        self.background_image.lower()    # Send it behind other widgets
+
+        #      (SETUP WHITE BOX FRAME)
+        # - Creating a White box to store the buttons, and input fields
+        self.frame, frame_layout = self.Create_FrameBox(self.layout, 340, 280)
+
         #      (SETUP VERICATION CODE)
         # - This will be used for the two step authetnication.
         # - Generating random number of code that will be sent to the user
@@ -305,9 +319,9 @@ class VerifyAcc_Screen(GUIClass):
 
         #      (CREATING INPUT FIELD)
         self.VerifyCode = self.Create_InputField(
-            self.layout,
+            frame_layout,
             "",
-            True,
+            False,
             "Enter verifcation code"
         )
 
@@ -315,7 +329,7 @@ class VerifyAcc_Screen(GUIClass):
         self.BTN_login = self.Create_Button(
             "SUBMIT", 
             "18px", 
-            self.layout, 
+            frame_layout, 
             self.Check_VerifyCode, 
             btn_align=Qt.AlignHCenter,
             width=250,

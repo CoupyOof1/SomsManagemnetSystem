@@ -34,17 +34,17 @@ class Dashboard_Screen(GUIClass):
         menu_Layout.setContentsMargins(30, 30, 30, 30)
 
         #      (SETUP BUTTON NAMES)
-        # - Setting up the button names and their position on the grid for presentation
+        # - Setting up the button names and their position on the grid for presentation and registering its icon
         BTNS_Names = [
-            ("View All Property", (0, 0), "Assets/Images/Icons/IC_BTN_VP.png"), # Button 1
-            ("Search Property", (0, 1), "Assets/Images/Icons/IC_BTN_SP.png"),   # Button 2 
-            ("Add Property", (1, 0), "Assets/Images/Icons/IC_BTN_VP.png"),      # Button 3
-            ("Register Admin", (1, 1), "Assets/Images/Icons/IC_BTN_VP.png"),    # Button 4 
-            ("Logout", (2, 0, 1, 2), "Assets/Images/Icons/IC_BTN_VP.png")       # Button 5
+            ("View All Property", (0, 0), "Assets/Images/Icons/IC_BTN_VP.png"), # Button 1 | Name/PositionOnGrid/Asset
+            ("Search Property", (0, 1), "Assets/Images/Icons/IC_BTN_SP.png"),   # Button 2 | Name/PositionOnGrid/Asset
+            ("Add Property", (1, 0), "Assets/Images/Icons/IC_BTN_VP.png"),      # Button 3 | Name/PositionOnGrid/Asset
+            ("Register Admin", (1, 1), "Assets/Images/Icons/IC_BTN_VP.png"),    # Button 4 | Name/PositionOnGrid/Asset
+            ("Logout", (2, 0, 1, 2), "Assets/Images/Icons/IC_BTN_VP.png")       # Button 5 | Name/PositionOnGrid/Asset
         ]
 
         #     (CREATING BUTTONS)
-        # - Creating and adding button
+        # - Using a loop to create and assign each button to the respected axis on the grid 
         for name, position, iconname in BTNS_Names: 
             # - Creating a placehold for hosting each button
             # - Each button will be added directly to the layout
@@ -56,7 +56,7 @@ class Dashboard_Screen(GUIClass):
                 text=name,
                 text_size="20px",
                 parent_layout=container,
-                connected=lambda _, n=name: self.Button_Test(n),
+                connected=lambda _, n=name: self.FUNC_BTN_ACTIVE(n),
                 bg_color="#2C3E50", 
                 hover_color="#34495E",
                 border_radius=20, 
@@ -76,6 +76,7 @@ class Dashboard_Screen(GUIClass):
         #       (ADDING GRID)
         self.layout.addLayout(menu_Layout)
 
-    def Button_Test(self, name):
+    def FUNC_BTN_ACTIVE(self, name):
+        # - A function to allow all the buttons to be pressed and inherit from to execute different actions
         print(name) 
 #endregion
