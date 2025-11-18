@@ -1,0 +1,8 @@
+Name,Type,Floors,Square Meterage,Parking,Availability,Cost,Address,City,Postcode,Description,Status,Date,Added By
+egoffice,Office,1,250,5,Lease,£200,"123 High Street, Cardiff",Cardiff,CF10 1AB,Modern Office with plain layout,Available,04/11/2025,Coupy
+egwarehouse,Warehouse,2,240,2,Purchase,£300,"123 High Street, Cardiff",Cardiff,CF10 1AB,Idk testing 123,Leased,04/11/2025,Coupy
+egstore,Store,3,200,1,Both,£100,"123 High Street, Cardiff",Cardiff,CF10 1AB,Idk testing 12145,Sold,04/11/2025,Coupy
+CaptialFrance,Warehouse,4,200,5,Purchase,£7000,123 High Street,Cardif,CF10 1BC,Warehouse with goods,Available,06/11/2025,
+Ipock Hotel,Hotel,34,400,5,Purchase,£700000,4AF High Street,Gloucestershire,GL59 0YU,A standardised hotel,Available,06/11/2025,
+Fallingwater,Dwelling,1-3,2000,0,purchase,£1500000,5,Forthvean,TR16 4NY,A house,Sold,06/11/2025,
+Mr Beast,Mansion,6,250,5,Purchase,£700000,126 High Street,Cardiff,CI57 0GH,Mr Beast Mansion,Available,11/11/2025,

@@ -9,8 +9,18 @@ from email.mime.multipart import MIMEMultipart # Importing email module needed
 import random                                  # Making use of random for generating code
 
 #      IMPORTING OTHER FILES IN THE FOLDER
-from GUI import * # Creating the GUI For Scenes
+from GUI import *       # Creating the GUI For Scenes
+from Dashboard import * # Sending names to the dashboard 
 #endregion
+
+#      EXPLAINATION 
+"""
+    This file will contain code for Login/Registeration systems to allow users
+    to log into an account or sign one up. Saving and reading user credentials
+    from the CSV file, checking their roles either Admin/General to send them 
+    to the corresponding dashboard (either admin/general) to limit certain 
+    features.
+"""
 
 #region Login 
 class LoginAcc_Screen(GUIClass):
@@ -36,18 +46,11 @@ class LoginAcc_Screen(GUIClass):
         # - Creating a White box to store the buttons, and input fields
         self.frame, frame_layout = self.Create_FrameBox(self.layout, 340, 280)
 
-        #      (SETUP TOP BAR)
-        # - Setting up a top bar to place the log in and sign up buttons
-        topbar_layout = QVBoxLayout()
-        topbar_layout.setAlignment(Qt.AlignTop)
-        topbar_layout.setSpacing(10)
-
         #      (SETUP TITLE)
-        title = QLabel("Login to Your Account")
-        title.setStyleSheet("font-size: 18px; font-weight: bold; color: #333;")
-        topbar_layout.addWidget(title, alignment=Qt.AlignCenter)
-
-        frame_layout.addLayout(topbar_layout)
+        self.Create_Title(
+            frame_layout,
+            "Login To Your Account"
+        )
 
         #      [FULLNAME INPUT FIELD]
         # - Allowing user to input their FullName for loggin in 
@@ -128,6 +131,9 @@ class LoginAcc_Screen(GUIClass):
             return 
 
         #      (CHECKING CREDENTIALS)
+        # - Rechecks the CSV Datasets incase of any changes such as newly added users 
+        self.data = self.ReReading_CSVFile("Assets/Files/UserDatabase.csv", self.data)
+
         # - Checking if the input credentials matches the one in the dataset 
         if not self.data:                   # If the data list loaded fromn the csv file is empty
             print("No user data available") # Prints a message 
@@ -139,8 +145,9 @@ class LoginAcc_Screen(GUIClass):
             fullnamedata = row.get("Fullname", "").lower().strip() # Extracting the fullname column from the row and converting it to lowercase and removing space to match
             emaildata = row.get("Email", "").lower().strip()       # Extracting the email column from the row and converting it to the lowercase and removign spaces to match
             passworddata = row.get("Password", "").lower().strip() # Extracting the password column from the row and converting it to lowercase and removing space to match
-            
-            print(f"DEBUG: Comparing input({NAME_INPUT}, {PASSWORD_INPUT}) "f"with fullname({fullnamedata}), email({emaildata}), password({passworddata})")
+            roledata = row.get("Role", "").lower().strip()         # Extracting the role column from the row and  converting it to lowercase and removing soace to match
+
+            print(f"DEBUG: Comparing input({NAME_INPUT}, {PASSWORD_INPUT}) "f"with fullname({fullnamedata}), email({emaildata}), password({passworddata}). role({roledata})")
 
             #       [COMPARING USER INPUT WITH CSV DATA]
             if PASSWORD_INPUT == passworddata and (NAME_INPUT == fullnamedata or NAME_INPUT == emaildata):
@@ -148,10 +155,19 @@ class LoginAcc_Screen(GUIClass):
                 break              # No need to check rows and exit the loop
             
         #      (HANDLING LOGIN/FAILURE ATTEMPTS)
-        if found_match:                                                          # If found a match in the csv file execute command
-            print("Login Sucessful")                                             # Print sucess message
-            verify_Screen = VerifyAcc_Screen(self.widget_stack, emaildata, True) # Passing emaild data to the next screen
-            self.widget_stack.setCurrentIndex(2)                                 # Switches screens to the Verification
+        if found_match:                                                                                  # If found a match in the csv file execute command
+            print("Login Sucessful")                                                                     # Print sucess message
+            verify_Screen = VerifyAcc_Screen(self.widget_stack, emaildata, fullnamedata, roledata, True) # Passing emaild data to the next screen
+
+            #      [PASSING USER DETAILS]
+            # - Passing user credentials like email and name to the next screen 
+            SCRN_VERIFY = self.widget_stack.widget(2) # Retrieving preloaded VerifyAcc Class
+            SCRN_VERIFY.user_email = emaildata
+            SCRN_VERIFY.user_name = fullnamedata
+            SCRN_VERIFY.user_role = roledata
+
+            self.widget_stack.addWidget(verify_Screen)
+            self.widget_stack.setCurrentIndex(2)                                                         # Switches screens to the Verification
         else:                            # If no matches were found execute the following command
             print("Invalid Credentials") # Prints invalid credentials message
 #endregion
@@ -179,6 +195,12 @@ class RegisterAcc_Screen(GUIClass):
         #      (SETUP WHITE BOX FRAME)
         # - Creating a White box to store the buttons, and input fields
         self.frame, frame_layout = self.Create_FrameBox(self.layout, 340, 280)
+
+        #      (SETUP TITLE)
+        self.Create_Title(
+            frame_layout,
+            "Register An Account"
+        )
 
         #      (CREATING FULLNAME INPUT FIELD)
         self.ENTFullname_InputField = self.Create_InputField(
@@ -278,12 +300,148 @@ class RegisterAcc_Screen(GUIClass):
             return
 #endregion
 
+#region Register Admin 
+class RegisterAdminAcc_Screen(GUIClass):
+    def __init__(self, widget_Stack):
+        super().__init__(widget_Stack) # Intializing the class 
+
+        #      (SETUP LAYOUT)
+        self.layout = QVBoxLayout() # Creates vertical layout container
+        self.setLayout(self.layout) # Assigning layout to main window
+        self.layout.setSpacing(10)
+
+        #      (CREATING BACKGROUND IMAGE)
+        self.background_image = self.Create_Image(
+            "Assets/Images/Background.png",    # Path to your image
+            self,                              # Parent (optional)
+            width=760,                         # Optional resize width
+            height=590                         # Optional resize height
+        )
+        self.background_image.move(0, 0) # Place it at (0, 0) to fill the window and stay behind everything
+        self.background_image.lower()    # Send it behind other widgets
+
+        #      (SETUP WHITE BOX FRAME)
+        # - Creating a White box to store the buttons, and input fields
+        self.frame, frame_layout = self.Create_FrameBox(self.layout, 340, 280)
+
+        #      (SETUP TOP BAR)
+        # - Setting up a top bar to place the log in and sign up buttons
+        topbar_layout = QVBoxLayout()
+        topbar_layout.setAlignment(Qt.AlignTop)
+        topbar_layout.setSpacing(10)
+
+        #      (SETUP TITLE)
+        self.Create_Title(
+            frame_layout,
+            "Register Admin Account"
+        )
+
+        #      (CREATING FULLNAME INPUT FIELD)
+        self.ENTFullname_InputField = self.Create_InputField(
+            frame_layout,
+            "",
+            False,
+            "Enter Fullname"
+        )
+
+        #      (CREATING EMAIL INPUT FIELD)
+        self.ENTEmail_InputField = self.Create_InputField(
+            frame_layout,
+            "",
+            False,
+            "Enter Email Address"
+        )
+
+        #      (CREATING PASSWORD INPUT FIELD)
+        self.ENTPassword_InputField = self.Create_InputField(
+            frame_layout,
+            "",
+            False,
+            "Enter Password"
+        )
+
+        #      (CREATING CONFIRM PASSWORD INPUT FIELD)
+        self.ENTConfPassword_InputField = self.Create_InputField(
+            frame_layout,
+            "",
+            False,
+            "Confirm Password"
+        )
+
+        #     (CREATING ACCOUNT BUTTON)
+        self.BTN_CreateAccount = self.Create_Button(
+            "Sign Up", 
+            "18px", 
+            frame_layout, 
+            self.Create_Account, 
+            btn_align=Qt.AlignHCenter,
+            width=250,
+            height=40,
+            icon_path=None
+        )
+    def Create_Account(self):
+        # - This will be a function where it will overwrite and add new details to the csv user database file
+
+        #      (GETTING INPUT VALUES)
+        # - Abstracting credentiasl from the input fields 
+        fullname = self.ENTFullname_InputField.text().strip()
+        email = self.ENTEmail_InputField.text().strip()
+        password = self.ENTPassword_InputField.text().strip()
+        confirm_password = self.ENTConfPassword_InputField.text().strip()
+
+        #      (BASIC VALIDATION)
+        # - If any of the fields are nto filled in
+        if not fullname or not email or not password or not confirm_password:
+            print("Please fill in all fields")
+            return 
+        # - If password doesnt match
+        if password != confirm_password:
+            print("Password doesn't match")
+            return
+        
+        #     (SETTING ROLE AND DATE)
+        # - Setting the role and date of creation of said account
+        role = "Admin"                                     # Assigning user type role
+        date_created = datetime.now().strftime("%d/%m/%Y") # Retrieving the current date 
+        csv_path = "Assets/Files/UserDatabase.csv"         # Path to the CSV File
+
+        #     (CHECKING FOR DUPLICATION)
+        # - Checking if email or name has already exist for avoiding duplication
+        try: 
+            with open(csv_path, mode="r", encoding="utf-8") as file: 
+                reader = csv.DictReader(file)
+                for row in reader:                                          # For each row on the csv 
+                    row = {k.strip(): v for k, v in row.items()} 
+                    if row["Email"].strip().lower() == email.lower():       # On CSV If User with email exist prints message 
+                        print("An account with this email exist")           # Printing message on terminal
+                        return
+                    if row["Fullname"].strip().lower() == fullname.lower(): # On CSV If user with fullname exist prints message
+                        print("An account with this name exists")           # Printing message on termianl
+                        return
+        except FileNotFoundError:
+            pass 
+
+        #      (APPENDING NEW USER ON CSV FILE)
+        # - Adding those new details onto the csv file 
+        try: 
+            with open(csv_path, mode="a", newline="", encoding="utf-8") as file:
+                writer = csv.writer(file)
+                writer.writerow([fullname, role, email, password, date_created]) # Write over the row for the csv with the credentials
+                print("Account Created!")                                        # Print message indicating account has been created 
+                self.widget_stack.setCurrentIndex(0)                             # Switches screens to the Login Screen
+        except Exception as e:
+            print(f"Error saving account: {e}")
+            return
+#endregion
+
 #region Verifying Account https://mailtrap.io/blog/python-send-email/
 class VerifyAcc_Screen(GUIClass):
-    def __init__(self, widget_Stack, emailofuser, SENDCODE=None):
-        super().__init__(widget_Stack)    # Intializing the class 
-        self.user_email = emailofuser     # Keep as a references for sending an code 
+    def __init__(self, widget_Stack, emailofuser, nameofuser, roleofuser, SENDCODE=None):
+        super().__init__(widget_Stack) # Intializing the class 
+        self.user_email = emailofuser  # Keep as a references for sending an code 
         self.Generate_Code = SENDCODE
+        self.user_name = nameofuser    # Keep as references for the name of user
+        self.user_role = roleofuser    # Keep as references for the role of user
 
         #      (SETUP LAYOUT)
         self.layout = QVBoxLayout() # Creates vertical layout container
@@ -347,7 +505,30 @@ class VerifyAcc_Screen(GUIClass):
         # - Checking if the input field matches the generated code
         if user_input == code:
             print("Verification sucessful! Ascess granted.") # Prints terminal message to indicate acess granted 
-            self.widget_stack.setCurrentIndex(3)             # Switches screens to the Dashboard Screen
+            
+            #      [CHECKING USER ROLE]
+            # - Checks the user role based on login credentials to send to the corresponding screen 
+            if self.user_role == "admin":
+                Dash_Screen = AdminDashboard_Screen(self.widget_stack, self.user_name) # Sending the user name to the admin dashboard
+                self.widget_stack.setCurrentIndex(3)                                   # Switches screens to the Dashboard Screen
+            elif self.user_role == "general":
+                Dash_Screen = GeneralDashboard_Screen(self.widget_stack, self.user_name) # Sending the user name to the general dashboard
+                self.widget_stack.setCurrentIndex(8)#'''                                # Switches screens to the Dashboard Screen 
+
+            '''# - Creating a dictionary for applying different types of 
+            ROLES_TYPE = {
+                "Admin": (AdminDashboard_Screen, 3),
+                "General": (GeneralDashboard_Screen, 8)
+            }
+
+            SCRN_INFO = ROLES_TYPE.get(self.user_role) # Fetching the values from the dictionary
+
+            if SCRN_INFO:
+                SCRN_CLASS, SCRN_INDEX = SCRN_INFO 
+                DASH_SCRN = SCRN_CLASS(self.widget_stack, self.user_name)
+                self.widget_stack.setCurrentIndex(SCRN_INDEX)
+            else: 
+                print(f"Unknown Role: {self.user_role}")#'''
         else:
             print("Incorrect code, Try Again")
 
@@ -377,7 +558,7 @@ class VerifyAcc_Screen(GUIClass):
                 server.login(email_sender, email_password)
                 server.send_message(msg)
                 print(f"Email sent to {email_reciever}")
-
+                print(f"Name: {self.user_name}/Role: {self.user_role}")
         except Exception as e:
             print(f"Failed to send email {e}")
 #endregion

@@ -1,12 +1,21 @@
 #region Import List
-import sys                                     # Interacting with the system
-import random                                  # Making use of random for generating code
+import sys                    # Interacting with the system
+import random                 # Making use of random for generating code
+import csv                    # To read, write, append csv files 
+from datetime import datetime # Retrieving the current date and time             
 
 #      IMPORTING PYQT5 LIBRARY FOR GUI INTERFACE
-from PyQt5.QtWidgets import QApplication, QWidget, QLineEdit, QVBoxLayout, QFrame, QPushButton, QLabel, QStackedWidget, QGridLayout, QSizePolicy, QVBoxLayout
+from PyQt5.QtWidgets import QApplication, QWidget, QLineEdit, QVBoxLayout, QHBoxLayout, QFrame, QPushButton, QLabel, QStackedWidget, QGridLayout, QSizePolicy, QVBoxLayout, QScrollArea, QFileDialog, QListWidget, QListWidgetItem, QLabel
 from PyQt5.QtCore import Qt, QSize
 from PyQt5.QtGui import QPixmap, QFont, QIcon # To use with images 
 #endregion
+
+#      EXPLAINATON
+"""
+    I developed a class for creating UI elements, like buttons, images, text etc to be
+    reusable across all other files. Functions in this code will be used to therefore 
+    create the overall UI for the entirety of the property management system.
+"""
 
 class GUIClass(QWidget):
     # - GUI Class will be used to store all functions needed to create the program's GUI compotents
@@ -14,7 +23,36 @@ class GUIClass(QWidget):
     def __init__(self, widget_stack=None):
         super().__init__()               # Intializing the class 
         self.widget_stack = widget_stack # Keep as a references for the QStackWidget
+        #self.SCRN_Previous_Index = None # Referencing the previous index
 
+    def Create_Title(self, parent_layout, title):
+        #      (SETUP TOP BAR)
+        # - Setting up a top bar to place the log in and sign up buttons
+        topbar_layout = QVBoxLayout()
+        topbar_layout.setAlignment(Qt.AlignTop)
+        topbar_layout.setSpacing(10)
+
+        #      (SETUP TITLE)
+        # - Customising how the title will be presented with the stylesheet
+        # - Alomg with adjusting it alignment with it appearance
+        title = QLabel(title)
+        title.setStyleSheet("font-size: 18px; font-weight: bold; color: #333;") # Styling the way it will be presented 
+        topbar_layout.addWidget(title, alignment=Qt.AlignCenter)                # Adjusting it alignment to be centered 
+        parent_layout.addLayout(topbar_layout)                                  # Adding it to the topbar lauput
+
+    def Set_PreviousScreen(self, SCRN):
+        # - This will be a function for storing the index of the current displayed screen
+
+        self.SCRN_Previous_Index = self.widget_stack.currentIndex(SCRN)
+
+    def Switch_BackScreen(self):
+        # - Switching back to the previously stored screen index
+
+        if hasattr(self, "SCRN_Previous_Index"):
+            self.widget_stack.setCurrentIndex(self.SCRN_Previous_Index)
+        else:
+            print("No previous screen was stored.")
+            
     def Switch_Screens(self, NUM):
         # - A function to switch screens to whatever is desired 
         # 0: Login Screen
@@ -23,7 +61,7 @@ class GUIClass(QWidget):
         
         self.widget_stack.setCurrentIndex(NUM) # Switches screens to the Desired Screen
 
-    def Create_FrameBox(self, parent_layout, width, height, colour="white"):
+    def Create_FrameBox(self, parent_layout, width, height, Alignment=Qt.AlignCenter, colour="white"):
         # - Creating a styled frame box with a centered layout inside i.
         # - Will be used to adding in widgets 
 
@@ -48,7 +86,7 @@ class GUIClass(QWidget):
         frame.setLayout(frame_layout)
 
         #      (ADDING FRAME)
-        parent_layout.addWidget(frame, alignment=Qt.AlignCenter)
+        parent_layout.addWidget(frame, alignment=Alignment)
 
         return frame, frame_layout # Returning both the frame and its inner layout
 
@@ -142,3 +180,17 @@ class GUIClass(QWidget):
         layout.setAlignment(Qt.AlignHCenter) # Setting the position of the layout
 
         return input_FIELD
+    
+    def ReReading_CSVFile(self, FILE_PATH, DATASETS):
+        # - This will be a function that will constantly reread the csv file when new users or property information has been added
+        
+        #      (LOADING DATASETS FROM CSV)
+        # - Using the try and except method for loading newly specific datasets after updates
+        # - In any case it fails to capture and extract the new infomation from the csv it will continue to run 
+        try:
+            with open(FILE_PATH, "r", encoding="utf-8") as file:
+                reader = csv.DictReader(file)                                         # Creating CSV Reader 
+                DATASETS = [{k.strip(): v for k, v in row.items()} for row in reader] # Reads all the rows including rows that contains special characters 
+        except FileNotFoundError:
+            print("Data not found, User Credentials not Useable") # Debugging 
+        return DATASETS                                           # Returns the checked datasets 
